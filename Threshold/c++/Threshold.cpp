@@ -50,7 +50,7 @@ void Threshold::computeThreshold() {
     for (int x = 0; x < numCols; x++) {
       infile >> data;
       data = data > thresholdVal ? 1 : 0;
-      outfile << data;
+      outfile << data << ' ';
     }
 
     outfile << endl;
