@@ -117,13 +117,9 @@ public class MedianFiltering {
 		pw.println();
 		for (int i = 1; i < numRows + 1; i++) {
 			for (int x = 1; x < numCols + 1; x++) {
-				if (tempAry[i][x] < 10) {
-					pw.print("  ");
-				} else {
-					pw.print(" ");
-				}
 
 				pw.print(tempAry[i][x]);
+				pw.print(" ");
 
 			}
 

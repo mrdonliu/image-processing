@@ -52,6 +52,7 @@ public class Threshold {
 				data = scanner.nextInt();
 				data = data > thresholdVal ? 1 : 0;
 				pw.print(data);
+				pw.print(" ");
 			}
 			pw.println();
 		}

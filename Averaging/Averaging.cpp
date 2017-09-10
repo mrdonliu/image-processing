@@ -1,3 +1,4 @@
+
 #include <fstream>
 #include <iostream>
 using namespace std;
@@ -42,6 +43,21 @@ Averaging::Averaging(char* infilename, char* outfilename) {
         maxVal = data;
         break;
     }
+  }
+  mirrorFramedAry = new int*[numRows + 2];
+  tempAry = new int*[numRows + 2];
+  for (int i = 0; i < numRows + 2; i++) {
+    mirrorFramedAry[i] = new int[numCols + 2];
+  }
+
+  for (int i = 0; i < numRows + 2; i++) {
+    tempAry[i] = new int[numCols + 2];
+  }
+  for(int i = 0 ; i  < numRows + 2 ; i++){
+  	for(int x = 0 ; x < numCols + 2 ; x++){
+  		tempAry[i][x] = 0;
+  		mirrorFramedAry[i][x] = 0;
+	  }
   }
 }
 void Averaging::print() {
@@ -91,15 +107,7 @@ void ::Averaging::avg3x3() {
 
 void Averaging::loadImage() {
   int data;
-  mirrorFramedAry = new int*[numRows + 2];
-  for (int i = 0; i < numRows + 2; i++) {
-    mirrorFramedAry[i] = new int[numCols + 2];
-  }
-
-  tempAry = new int*[numRows + 2];
-  for (int i = 0; i < numRows + 2; i++) {
-    tempAry[i] = new int[numCols + 2];
-  }
+  
 
   for (int i = 0; i < numRows + 2; i++) {
     for (int x = 0; x < numCols + 2; x++) {
