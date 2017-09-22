@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class MedianFiltering {
+public class Main {
 
 	private int numRows, numCols, minVal, maxVal, newMin, newMax;
 	private int[][] mirrorFramedAry;
@@ -16,7 +16,7 @@ public class MedianFiltering {
 	private PrintWriter pw;
 	private Scanner sc;
 
-	public MedianFiltering(String infilename, String outfilename) throws IOException {
+	public Main(String infilename, String outfilename) throws IOException {
 		sc = new Scanner(new BufferedReader(new FileReader(infilename)));
 		pw = new PrintWriter(new BufferedWriter(new FileWriter(outfilename)));
 		int data;
@@ -133,7 +133,7 @@ public class MedianFiltering {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {
-			MedianFiltering mf = new MedianFiltering(args[0], args[1]);
+			Main mf = new Main(args[0], args[1]);
 			mf.loadImage();
 			mf.mirrorFramed();
 
