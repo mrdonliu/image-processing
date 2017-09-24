@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <string>
 using namespace std;
 struct Property{
 			int label, numbPixels, minRow, minCol, maxRow, maxCol;
@@ -7,6 +8,11 @@ struct Property{
 			void incrementPixels();
 			void checkBounds(int i , int j );
 			Property();
+			int getMaxRows();
+			int getMinCols();
+			int getMaxCols();
+			int getMinRows();
+			int getNumbPixels();
 		};
 		
 class ConnectComponent{
@@ -16,12 +22,12 @@ class ConnectComponent{
 		int neighborAry[9];
 		int* eqAry;
 		ifstream infile;
-		ofstream outfile;
+		ofstream outfile , outfile2 , outfile3;
 		Property* components;
 		
 		
 		public:
-			ConnectComponent(char* infilename , char* outfilename);
+			ConnectComponent(char* infilename , char* outfilename, char* outfilename2 , char* outfilename3);
 			~ConnectComponent();
 			void zeroFrame();
 			void loadImage();
@@ -32,13 +38,16 @@ class ConnectComponent{
 			void updateEqAry();
 			void manageEqAry();
 			void printCcProperty();
-			void prettyPrint();
-			void print();
+			void prettyPrint(int pass);
+			void print(string message);
+			void print2();
 };
 
-ConnectComponent::ConnectComponent(char* infilename , char* outfilename){
+ConnectComponent::ConnectComponent(char* infilename , char* outfilename , char* outfilename2 , char* outfilename3){
 	infile.open(infilename);
 	outfile.open(outfilename);
+	outfile2.open(outfilename2);
+	outfile3.open(outfilename3);
 	int data =0;
 	for (int i = 0; i < 4; i++) {
     infile >> data;
@@ -80,6 +89,7 @@ ConnectComponent::~ConnectComponent(){
 		delete[] components;
 		infile.close();
 		outfile.close();
+		outfile2.close();
 }
 
 void ConnectComponent::loadImage() {
@@ -89,7 +99,7 @@ void ConnectComponent::loadImage() {
   for (int i = 1; i < numRows + 1; i++) {
     for (int x = 1; x < numCols + 1; x++) {
       infile >> data;
-      //zeroFramedAry[i][x] = data;
+      zeroFramedAry[i][x] = data;
     }
   }
 }
@@ -102,7 +112,9 @@ Property::Property(){
 	minRow = 2147483647;
 	minCol = 2147483647;
 }
-
+int Property::getNumbPixels(){
+	return numbPixels;
+}
 void Property::setLabel(int l){
 	label = l;
 	}
@@ -110,18 +122,32 @@ void Property::incrementPixels(){
 	numbPixels++;
 }
 
+int Property::getMaxRows(){
+	return maxRow;
+}
+
+int Property::getMinRows(){
+	return minRow;
+}
+int Property::getMaxCols(){
+	return maxCol;
+}
+
+int Property::getMinCols(){
+	return minCol;
+}
 void Property::checkBounds(int i , int j ){
 	if( i < minRow ){
 		minRow = i;
 	}
-	else if( i > maxRow ){
-		i = maxRow;
+	if( i > maxRow ){
+		maxRow = i;
 	}
 	
 	if( j < minCol ){
 		minCol = j;
 	}
-	else if(j > maxCol ){
+	if(j > maxCol ){
 		maxCol = j;
 	}
 }
@@ -171,6 +197,7 @@ void ConnectComponent::connectCC_pass1(){
 	}
 	}
 	
+
 }
 
 void ConnectComponent::connectCC_pass2(){
@@ -227,27 +254,26 @@ void ConnectComponent::connectCC_pass2(){
 		}
 	}
 	
-	for(int x = 0; x < (numRows*numCols)/4;x++){
-		cout<< x << ":" << eqAry[x] << endl;
-	}
-	
-	manageEqAry();
 }
 void ConnectComponent::connectCC_pass3(){
-	components = new Property[newLabel];
+	components = new Property[newLabel+1];
 	for(int i = 1 ; i <= newLabel ; i++ ){
-		components[i].setLabel(1);
+		components[i].setLabel(i);
 	}
 	for(int i = 1; i < numRows + 1 ; i++){
 		for(int x = 1 ; x < numCols + 1 ; x++){
 			if(zeroFramedAry[i][x] > 0){
 				zeroFramedAry[i][x] = eqAry[zeroFramedAry[i][x]];
-				components[zeroFramedAry[i][x]].incrementPixels();
+   			    components[zeroFramedAry[i][x]].incrementPixels();
 				components[zeroFramedAry[i][x]].checkBounds(i,x);
+
+
 				
 			}
 		}
 	}	
+	
+
 }
 void ConnectComponent::updateEqAry(){
 	
@@ -271,21 +297,27 @@ void ConnectComponent::manageEqAry(){
 	
 }
 void ConnectComponent::printCcProperty(){
-	outfile << numRows << " " << numCols << " " << minVal << " " << maxVal;
+	outfile3 << numRows << " " << numCols << " " << minVal << " " << maxVal;
+	outfile3 << newLabel << endl;
+	for(int i = 1 ; i <= newLabel ; i++ ){
+		outfile3 << i << endl;
+		outfile3 << components[i].getNumbPixels() << endl;
+		outfile3 << components[i].getMinRows() << " " << components[i].getMinCols() << endl;
+		outfile3 << components[i].getMaxRows() << " " << components[i].getMaxCols() << endl;
+		outfile3 << endl;
+	}
 	
 }
 
-void ConnectComponent::print(){
-	for(int i = 0 ; i < numRows + 2; i++){
-		for(int x = 0; x < numCols + 2; x++){
-			cout << zeroFramedAry[i][x];
-			if( zeroFramedAry[i][x] < 10 ){
-				cout << "  ";
-			} else{
-				cout << " ";
-			}
+void ConnectComponent::print(string message){
+	outfile << message << endl;
+	outfile << "eqAry: (Index:Value) " << endl;
+	
+	for(int i = 0; i < (numRows*numCols )/ 4 ; i++ ){
+		outfile << i << ":" << eqAry[i] << "  ";
+		if(i%10 == 0){
+			outfile<<endl;
 		}
-		cout<<endl;
 	}
 
 }
@@ -305,7 +337,19 @@ void ConnectComponent::zeroFrame(){
 }
 
 
-void ConnectComponent::prettyPrint(){
+void ConnectComponent::prettyPrint(int pass ){
+	
+	switch(pass){
+		case 1: 
+		outfile << "Pass 1:" << endl;
+		break;
+		case 2: 
+		outfile << "Pass 2:" << endl;
+		break;
+		case 3: 
+		outfile << "Pass 3:" << endl;
+		break;
+	}
 
 	for( int i = 0 ; i<numRows+2 ; i++){
 		for( int x = 0; x < numCols+2; x++){
@@ -326,18 +370,36 @@ void ConnectComponent::prettyPrint(){
 		}
 		outfile << endl;
 	}
+	
+	print("");
+	
+	outfile << endl << endl << endl;
 }
 
+void ConnectComponent::print2(){
+	outfile2 << numRows << " " << numCols << " " << 0 << " " << newLabel;
+	outfile2 << endl;
+	for(int i = 1 ; i < numRows + 1 ; i++ ){
+		for( int x = 1 ; x < numCols ; x++ ){
+			outfile2 << zeroFramedAry[i][x] << " ";
+		}
+		outfile2 << endl;
+	} 
+}
 int main(int argc , char* argv[]){
 	
-	ConnectComponent cc(argv[1] , argv[2]);
+	ConnectComponent cc(argv[1] , argv[2] , argv[3] , argv[4]);
 	cc.loadImage();
-//	cc.zeroFrame();
-//	cc.connectCC_pass1();
-//	cc.connectCC_pass2();
-//	cc.connectCC_pass3();
-//	cc.prettyPrint();
-//	cc.print();
-//	cc.printCcProperty();
+	cc.zeroFrame();
+	cc.connectCC_pass1();
+	cc.prettyPrint(1);
+	cc.connectCC_pass2();
+	cc.prettyPrint(2);
+	cc.manageEqAry();
+	cc.print("After managing eqAry");
+	cc.connectCC_pass3();
+	cc.prettyPrint(3);
+	cc.printCcProperty();
+	cc.print2();
 	
 }
